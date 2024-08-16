@@ -24,6 +24,7 @@ async function run() {
   try {
     const database = client.db('cardoctorDB');
     const categoriesCollection = database.collection('categoryDB');
+    const partsCollection = database.collection('partsDB');
 
     await client.db('admin').command({ ping: 1 });
     console.log(
@@ -32,10 +33,24 @@ async function run() {
 
     /* ROUTES */
 
+    // fetch all categories
     app.get('/categories', async (req, res) => {
-      /*  */
       const result = await categoriesCollection.find().toArray();
       res.send(result);
+    });
+
+    //fetch all parts
+    app.get('/parts', async (req, res) => {
+      const result = await partsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // fetch top rating data
+    app.get('/top-rated', async (req, res) => {
+      const topRated = await partsCollection
+        .aggregate([{ $sort: { rating: -1 } }, { $limit: 8 }])
+        .toArray();
+      res.send(topRated);
     });
   } catch (err) {
     console.log(err);
