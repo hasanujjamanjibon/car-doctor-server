@@ -25,6 +25,7 @@ async function run() {
     const database = client.db('cardoctorDB');
     const categoriesCollection = database.collection('categoryDB');
     const partsCollection = database.collection('partsDB');
+    const servicesCollection = database.collection('serviceDB');
 
     await client.db('admin').command({ ping: 1 });
     console.log(
@@ -45,10 +46,16 @@ async function run() {
       res.send(result);
     });
 
+    //fetch all services
+    app.get('/services', async (req, res) => {
+      const result = await servicesCollection.find().toArray();
+      res.send(result);
+    });
+
     // fetch top rating data
     app.get('/top-rated', async (req, res) => {
       const topRated = await partsCollection
-        .aggregate([{ $sort: { rating: -1 } }, { $limit: 8 }])
+        .aggregate([{ $sort: { rating: -1 } }])
         .toArray();
       res.send(topRated);
     });
